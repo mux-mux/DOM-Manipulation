@@ -26,18 +26,25 @@ const movieDB = {
 window.onload = function () {
     const adv = document.querySelector('.promo__adv'),
         content = document.querySelector('.promo__content'),
-        genre = document.querySelector('.promo__genre'),
         bg = document.querySelector('.promo__bg'),
-        films = document.querySelectorAll('.promo__interactive-item');
+        genre = bg.querySelector('.promo__genre'),
+        films = document.querySelector('.promo__interactive-list');
 
     adv.remove();
-    content.style.cssText = 'width:calc(100%-300px);';
+    // content.style.cssText = 'width:calc(100%-300px);';
+    content.style.width = 'calc(100% - 300px)';
 
     genre.textContent = 'Драма';
 
     bg.style.background = 'url("img/bg.jpg") center center/cover no-repeat';
 
-    films.forEach((item, i) => {
-        item.textContent = movieDB.movies[i];
-    })
+    movieDB.movies.sort();
+    films.innerHTML = '';
+    movieDB.movies.forEach((item, i) => {
+        films.innerHTML += `
+        <li class="promo__interactive-item">
+            ${i + 1}. ${item}
+            <div class="delete"></div>
+        </li>`;
+    });
 };
