@@ -26,60 +26,73 @@ const movieDB = {
         "Скотт Пилигрим против..."
     ]
 };
-window.onload = function () {
+document.addEventListener('DOMContentLoaded', () => {
     const adv = document.querySelector('.promo__adv'),
         content = document.querySelector('.promo__content'),
         bg = document.querySelector('.promo__bg'),
         genre = bg.querySelector('.promo__genre'),
         films = document.querySelector('.promo__interactive-list'),
-        addForm = document.querySelector('.add'),
-        inputedFilm = document.querySelector('.adding__input'),
-        deleteIcon = document.querySelectorAll('.promo__interactive-item'),
-        isFavorite = document.querySelector('[type="checkbox"]');
+        addForm = document.querySelector('form.add'),
+        inputedFilm = addForm.querySelector('.adding__input'),
+        deleteIcon = document.querySelectorAll('.delete'),
+        isFavorite = addForm.querySelector('[type="checkbox"]');    //addForm
 
     addForm.addEventListener('submit', (e) => {
         e.preventDefault();
         let inpFilm = inputedFilm.value;
-        let isFavorieFilm = isFavorite.checked;
-        if (inpFilm.length > 21) {
-            movieDB.movies.push(inpFilm.slice(0, 21) + '...');
-        } else {
+        const isFavorieFilm = isFavorite.checked;
+        if (inpFilm && inpFilm.trim() > 0) {
+            if (inpFilm.length > 21) {
+                inpFilm = `${inpFilm.slice(0, 22)}...`;
+            }
             movieDB.movies.push(inpFilm);
-        }
-        checkFavorite(isFavorieFilm);
-        showMovieList(movieDB.movies);
+            checkFavorite(isFavorieFilm);
+            sortArr(movieDB.movies);
+            showMovieList(movieDB.movies, films);
+            e.target.reset();
+        }                                      //add reset
     });
 
-    deleteIcon.forEach((item, i) => {
-        item.addEventListener('click', function (e) {
-            console.log(item.parentElement);
-            // e.target.parentElement.remove();
-            // e.target.removeEventListener();
-        });
-    });
+    const deleteAdv = (block) => {
+        block.remove();
+        content.style.width = 'calc(100% - 300px)';
+    }
 
-
-    adv.remove();
-    // content.style.cssText = 'width:calc(100%-300px);';
-    content.style.width = 'calc(100% - 300px)';
-
-    genre.textContent = 'Драма';
-
-    bg.style.background = 'url("img/bg.jpg") center center/cover no-repeat';
+    const makeChanges = () => {
+        genre.textContent = 'Драма';
+        bg.style.background = 'url("img/bg.jpg") center center/cover no-repeat';
+    }
 
     function checkFavorite(isChecked) {
         (isChecked) ? console.log('Add fav film') : console.log('fav unchecked');;
     }
-    function showMovieList(moviesList) {
-        moviesList.sort();
-        films.innerHTML = '';
+
+    const sortArr = (arr) => {
+        arr.sort();
+    }
+
+    function showMovieList(moviesList, parent) {
+        sortArr(moviesList);
+        parent.innerHTML = '';
         moviesList.forEach((item, i) => {
-            films.innerHTML += `
+            parent.innerHTML += `
             <li class="promo__interactive-item">
                 ${i + 1}. ${item}
                 <div class="delete"></div>
             </li>`;
         });
+
+        deleteIcon.forEach((item, i) => {
+            item.addEventListener('click', function (e) {
+                item.parentElement.remove();
+                movieDB.movies.splice(i, 1);
+                // e.target.removeEventListener();
+                showMovieList(moviesList, parent);       //update films count
+            });
+        });
     }
-    showMovieList(movieDB.movies);
-};
+
+    deleteAdv(adv);
+    makeChanges();
+    showMovieList(movieDB.movies, films);
+});
